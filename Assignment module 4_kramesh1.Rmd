@@ -1,0 +1,84 @@
+---
+title: "Quantitative Management Assignment-2 "
+author: " karthikeyan Ramesh"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+```{r}
+#install.packages("lpSolve")
+library("lpSolve") #Activating the lpSolve Package
+```
+
+Further going down in order to solve the problem we need to define the objective, constraints, direction and constants
+
+Objective Function
+$$ \text{The Objective function of } Max \hspace{.3cm} Z = 420 (B_1L+B_2L+B_3L) + 360 (B_1M+B_2M+B_3M) + 300 (B_1S+B_2S+B_3S) $$
+$$\text{Subject to}$$
+$$ B_1L+B_1M+B_1S \le 750 $$
+$$ B_2L+B_2M+B_2S \le 900 $$
+$$ B_3L+B_3M+B_3S \le 450 $$\\
+$$ 20B_1L+15B_1M+12B_1S \le 13000 $$
+$$ 20B_2L+15B_2M+12B_2S \le 12000 $$
+$$ 20B_3L+15B_3M+12B_3S \le 5000 $$\\
+$$ B_1L+B_2L+B_3L \le 900 $$
+$$ B_1M+B_2M+B_3M \le 1200 $$
+$$ B_1S+B_2S+B_3S \le 750 $$
+Non Negativity Constraints
+$$ B_1L,B_2L,B_3L,B_1M,B_2M,B_3M,B_1S,B_2S,B_3S \ge 0 $$
+The  constraints for 
+$$ B_1L+B_1M+B_1S+0B_2L+0B_2M+0B_2S+0B_3L+0B_3M+0B_3S \le 750       $$
+$$ 0B_1L+0B_1M+0B_1S+B_2L+B_2M+B_2S+0B_3L+0B_3M+0B_3S \le 900$$
+$$ 0B_1L+0B_1M+0B_1S+0B_2L+0B_2M+0B_2S+B_3L+B_3M+B_3S \le 450$$
+$$ 20B_1L+15B_1M+12B_1S+0B_2L+0B_2M+0B_2S+0B_3L+0B_3M+0B_3S \le 13000 $$
+$$ 0B_1L+0B_1M+0B_1S+20B_2L+15B_2M+12B_2S+0B_3L+0B_3M+0B_3S \le 12000 $$
+$$0B_1L+0B_1M+0B_1S+0B_2L+0B_2M+0B_2S+20B_3L+15B_3M+12B_3S \le 5000 $$
+$$B_1L+0B_1M+0B_1S+B_2L+0B_2M+0B_2S+B_3L+0B_3M+0B_3S \le 900$$
+$$0B_1L+B_1M+0B_1S+0B_2L+B_2M+0B_2S+0B_3L+B_3M+0B_3S \le 1200$$
+$$0B_1L+0B_1M+B_1S+0B_2L+0B_2M+B_2S+0B_3L+0B_3M+B_3S \le 750$$
+
+The Objective Function 
+```{r}
+f.obj <- c(420,360,300,420,360,300,420,360,300)
+```
+
+The Constraints 
+```{r}
+f.con <- matrix(c(1,1,1,0,0,0,0,0,0,
+                  0,0,0,1,1,1,0,0,0,
+                  0,0,0,0,0,0,1,1,1,
+                  20,15,12,0,0,0,0,0,0,
+                  0,0,0,20,15,12,0,0,0,
+                  0,0,0,0,0,0,20,15,12,
+                  1,0,0,1,0,0,1,0,0,
+                  0,1,0,0,1,0,0,1,0,
+                  0,0,1,0,0,1,0,0,1), nrow = 9, byrow=T)
+```
+
+The Direction of the constraints
+```{r}
+f.dir <- c('<=',
+           '<=',
+           '<=',
+           '<=',
+           '<=',
+           '<=',
+           '<=',
+           '<=',
+           '<=')
+```
+
+The constants for right hand side values
+```{r}
+f.rhs <- c(750,900,450,13000,12000,5000,900,1200,750)
+```
+
+The lp function to solve the problem basing the objective function 
+```{r}
+lp('max',f.obj,f.con,f.dir,f.rhs)
+```
+The lp function of the values for the variables 
+```{r}
+lp('max',f.obj,f.con,f.dir,f.rhs)$solution
+```
