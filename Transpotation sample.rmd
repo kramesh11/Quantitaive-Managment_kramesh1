@@ -1,0 +1,69 @@
+---
+title: "Transportation sample"
+author: "karthikeyan ramesh"
+date: "17-10-2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+```{r}
+install.packages("lpSolve",repos = "http://cran.us.r-project.org")
+library(lpSolve)
+```
+ Formulate and solve this transportation problem using R 
+
+
+```{r}
+Shipping<- matrix(c(22,14,30,600,100,
+                    16,20,24,625,120,
+                    80,60,70,"-","-"),ncol=5,byrow= TRUE)
+colnames(Shipping)<- c("Warehouse1","Warehouse 2","Warehouse 3","Production cost","Production Capacity")
+rownames(Shipping)<-c("PlantA","Plant B"," Monthly Demand")
+Shipping<-as.table(Shipping)
+Shipping
+```
+
+
+```{r}
+costs<- matrix(c(622,614,630,
+                 641,645,649),ncol =3, byrow=TRUE)
+costs
+```
+
+
+```{r}
+##Set up constraints
+row.signs<- rep("<=",2)
+row.rhs<- c(100,120)
+##Demand Side
+col.signs<- rep(">=",3)
+col.rhs<- c(80,60,70)
+
+```
+
+##Run
+```{r}
+lptrans<-lp.transport(costs,"min",row.signs,row.rhs,col.signs,col.rhs)
+```
+
+```{r}
+
+##Value of nvariables
+lptrans$solution
+lptrans$objval
+```
+ 
+
+
+
+
+
+
