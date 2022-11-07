@@ -1,7 +1,7 @@
 ---
-title: "DEA assignment"
+title: "Goal programming"
 author: "karthikeyan ramesh"
-date: "2022-10-29"
+date: "2022-11-06"
 output:
   word_document: default
   html_document: default
@@ -12,162 +12,54 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
----
-title: "DEA Assignment"
-output:
-  word_document: default
-  html_notebook: default
-  pdf_document: default
----
-
+The Research and Development Division of the Emax Corporation has developed three new products. A
+decision now needs to be made on which mix of these products should be produced. Management wants
+primary consideration given to three factors:
+1. Total Profit,
+2. Stability in the workforce and
+3. Achieving an increase in the company’s earnings next year from the $75 million achieved
+this year.
+Objective Function
+Maximize Z = P - 6C - 3D, where
+P = Total discounted profit over the life of the new products,
+C = Change in either direction towards the current level of employment,
+D = decrease if any in next year’s earnings from the current year’s level.
 ```{r}
-knitr::opts_chunk$set(message = FALSE)
-knitr::opts_chunk$set(warning = FALSE)
+library(lpSolve)
+library(lpSolveAPI)
+
 ```
 
-```{r}
-library("Benchmarking")
-x <- matrix(c("Facility 1","Facility 2","Facility 3","Facility 4","Facility 5", "Facility 6",
-                150,400,320,520,350,320,
-                0.2,0.7,1.2,2.0,1.2,0.7,
-                14000,14000,42000,28000,19000,14000,
-                3500,21000,10500,42000,25000,15000), ncol=5, byrow=F)
-
-colnames(x) <- c("DMU", "Stafhours_Per_Day","Supplies_Per_Day","Reimbursed_Patient_Days","Privately_Paid_Patient_Days")
-
-table.df <- as.table(x)
-table.df
-```
-
-##Calculating Constant Returns to Scale (CRS)
-```{r}
-x <- matrix(c(150,400,320,520,350,320,
-            0.2,0.7,1.2,2.0,1.2,0.7),ncol=2)
-
-y <- matrix(c(14000,14000,42000,28000,19000,14000,
-                3500,21000,10500,42000,25000,15000),ncol=2)
-
-colnames(y) <- c("Reimbursed_Patient_Days","Privately_Paid_Patient_Days")
-
-colnames(x) <- c("staffhours_per_Day","Supplies_Per_Day")
-
-DEA_CRS<-dea(x, y, RTS = "crs")
-DEA_CRS
-
-peers(DEA_CRS)
-lambda(DEA_CRS)
-```
-##CRS Observations 
-*1. We get to see that Facility 1, Facility 2, Facility 3  and Facility 4 are efficient.*
-*2. Also, we get to see that Facility 1, Facility 2 and Facility 4 are the peer members for Facility 5 and Facility 6 which are the inefficient facilities.*
-*3. Facility 5 is 97.75 % efficient leaving 2.25 % as inefficient and Facility 6 is 86.75 % efficient leaving 13.25 % as inefficient.*
-
-##Calculating Decreasing Returns to Scale (DRS)
-```{r}
-DEA_DRS <- dea(x, y, RTS = "drs")
-DEA_DRS
-
-peers(DEA_DRS)
-lambda(DEA_DRS)
-```
-##DRS Observations -
-\newline
-*1. We get to see that Facility 1, Facility 2, Facility 3  and Facility 4 are efficient.*
-
-*2. Also, we get to see that Facility 1, Facility 2 and Facility 4 are the peer members for Facility 5 and Facility 6 which are the inefficient facilities.*
-
-*3. Facility 5 is 97.75 % efficient leaving 2.25 % as inefficient and Facility 6 is 86.75 % efficient leaving 13.25 % as inefficient.*
-
-
-##Calculating Increasing Returns to Scale (IRS)
-```{r}
-DEA_IRS <- dea(x, y, RTS = "irs")
-DEA_IRS
-
-peers(DEA_IRS)
-lambda(DEA_IRS)
-```
-##IRS Observations -
-*1. We get to see that Facility 1, Facility 2, Facility 3, Facility 4 and Facility 5 are efficient.*
-*2. Also, we get to see that Facility 1, Facility 2 and Facility 5 are the peer members for Facility 6 which is the only inefficient facility.*
-*3. Facility 6 is 89.63 % efficient leaving 10.37 % as inefficient.*
-
-##Calculating Variable Returns to Scale (VRS)
-```{r}
-DEA_VRS <- dea(x, y, RTS = "vrs")
-DEA_VRS
-
-peers(DEA_VRS)
-lambda(DEA_VRS)
-```
-*VRS Observations -* 
-\newline
-*1. We get to see that Facility 1, Facility 2, Facility 3, Facility 4 and Facility 5 are efficient.*
-\newline
-*2. Also, we get to see that Facility 1, Facility 2 and Facility 5 are the peer members for Facility 6 which is the only inefficient facility.*
-\newline
-*3. Facility 6 is 89.63 % efficient leaving 10.37 % as inefficient.*
-\newline
-
-##Calculating Free Disposability Hull (FDH)
-```{r}
-DEA_FDH <- dea(x, y, RTS = "fdh")
-DEA_FDH
-
-peers(DEA_FDH)
-lambda(DEA_FDH)
-```
-## FDH Observations -
-*All the DMUs are efficient. This is basically due to the principal which FDH technique follows thereby detecting even a small level of efficiency.*
-
-##Calculating Free Replicability Hull (FRH)
-```{r}
-#here FRH is calculated by specifying RTS = "add"
-DEA_FRH <- dea(x, y, RTS = "add")
-DEA_FRH
-
-peers(DEA_FRH)
-lambda(DEA_FRH)
-```
-##FRH Observations -
-*All the DMUs are efficient. It follows the no convexity assumption which ensures that the output is free from disposal and replication.*
-
-##Summary of Results (Inefficient DMUs)
-```{r}
-data.df.summarise.inefficient <- matrix(c("CRS","DRS","IRS","VRS","FDH","FRH",
-2,2,1,1,0,0,
-"Facility 5 & 6", "Facility 5 & 6","Facility 6", "Facility 6", "-","-",
-"97.75% & 86.7%","97.75% & 86.7%","89.63%","89.63%","-","-",
-"Facility 1, 2 & 4","Facility 1, 2 & 4","Facility 1, 2 & 5","Facility 1, 2 & 5","-","-",
-"0.2, 0.08, 0.54 and 0.34, 0.4, 0.13", "0.2, 0.08, 0.54 and 0.34, 0.4, 0.13", "0.4, 0.34 and 0.26", "0.4, 0.34 and 0.26", "-","-"),ncol=6,byrow=F)
-
-
-colnames(data.df.summarise.inefficient) <- c("RTS","Count_Inefficient_DMUs","Name_DMUs","%_Inefficiency","Peers","Lambda")
-
-as.table(data.df.summarise.inefficient)
-```
-##Summary of Results tabular format (Efficient DMUs)
-```{r}
-data.df.summarise.efficient <- matrix(c("CRS","DRS","IRS","VRS","FDH","FRH",
-"Facility 1, 2, 3 & 4","Facility 1, 2, 3 & 4","Facility 1, 2, 3, 4 & 5", "Facility 1, 2, 3, 4 & 5", "All DMUs", "All DMUs"), ncol = 2, byrow=F)
-
-colnames(data.df.summarise.efficient) <- c("RTS", "Efficient_DMUs")
-
-as.table(data.df.summarise.efficient)
-```
-
-***Conclusion***
-\newline
-*It is must to note that DEA is a very useful tool to any firm in deciding which is the best DMU i.e. which of the Decision Making Unit has to be maximized so that there would be an increase, decrease or any kind of variations to the output by feeding input into it.* 
-\newline
-*Also, a company can decide upon which of the RTS it wants to employ i.e. Returns to Scale based on their requirements, each of these scales has it's own importance.*
-\newline
-
-#Plotting the Graphs***
-\newline
-#Plot
+Loading the LP file from the current directory and printing the model
+Defining y1p and y1m as the amount over (if any) and the amount under (if any) the employment level goal.
+Defining y2p and y2m in the same way for the goal regarding earnings next year.
+Define x1, x2 and x3 as the production rates of Products 1, 2, and 3, respectively.
+Also expressing P in terms of x1, x2 and x3 and the objective function in terms of x1, x2, x3, y1p, y1m , y2p and y2m
 
 ```{r}
-dea.plot(x,y,RTS="add")
+emax_rd <- read.lp("C:/Users/ASUS/Downloads/Emax1.lp")
+print(emax_rd)
+emax_table <- matrix(c("Total Profit", "Employment Level", "Earnings Next Year",
+20,6,8,
+15,4,7,
+25,5,5,
+"Maximize","=50",">=75", "Millions of Dollars", "Hundreds of Employees", "Millions of Dollars"), ncol=6)
+colnames(emax_table) <- c("Factor","Product 1", "Product 2", "Product 3", "Goal", "Units")
+as.table(emax_table)
+solve(emax_rd)
+get.objective(emax_rd)
+get.variables(emax_rd)
 ```
+
+Interpretation:
+1.X1, X2, X3 are the combinatorial units that companies must implement to maximize the objective function
+. X1 - Product 1, X2 - Product 2, and X3 of Product 3 indicate that Product 1 and Product
+2 cannot be created as intended. H. Product 1 with 20 units and Product 2 with 15 units
+cannot be created because the resulting solution is "0". However, the X3 has changes. H. Product 3 is the only product Company can produce. H. 15 units of product 3, thereby maximizing profit.
+2. The aim was to stabilize the employment level by limiting the maximum number to 50,
+00 employees, but in this case the company exceeded the employment level by 25,000,
+employees (y1p) and the excess have to pay a penalty of Increase in number of employees.
+3.The purpose of y2p and y2m was to capture the increase or decrease in earnings over the next few years from the current level of
+. Income compared with this year. Therefore, next year's profit of
+remains constant.
+4. The profit that the firm maximizes is given by the value of the objective function. In this case, this value is $4,444,225 million.

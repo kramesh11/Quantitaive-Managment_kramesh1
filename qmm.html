@@ -11,9 +11,9 @@
 
 <meta name="author" content="karthikeyan ramesh" />
 
-<meta name="date" content="2022-10-29" />
+<meta name="date" content="2022-11-06" />
 
-<title>DEA Assignment</title>
+<title>Goal programming</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -363,256 +363,81 @@ pre code {
 
 
 
-<h1 class="title toc-ignore">DEA Assignment</h1>
+<h1 class="title toc-ignore">Goal programming</h1>
 <h4 class="author">karthikeyan ramesh</h4>
-<h4 class="date">2022-10-29</h4>
+<h4 class="date">2022-11-06</h4>
 
 </div>
 
 
-<pre class="r"><code>knitr::opts_chunk$set(message = FALSE)
-knitr::opts_chunk$set(warning = FALSE)</code></pre>
-<pre class="r"><code>library(&quot;Benchmarking&quot;)
-x &lt;- matrix(c(&quot;Facility 1&quot;,&quot;Facility 2&quot;,&quot;Facility 3&quot;,&quot;Facility 4&quot;,&quot;Facility 5&quot;, &quot;Facility 6&quot;,
-                150,400,320,520,350,320,
-                0.2,0.7,1.2,2.0,1.2,0.7,
-                14000,14000,42000,28000,19000,14000,
-                3500,21000,10500,42000,25000,15000), ncol=5, byrow=F)
-
-colnames(x) &lt;- c(&quot;DMU&quot;, &quot;Stafhours_Per_Day&quot;,&quot;Supplies_Per_Day&quot;,&quot;Reimbursed_Patient_Days&quot;,&quot;Privately_Paid_Patient_Days&quot;)
-
-table.df &lt;- as.table(x)
-table.df</code></pre>
-<pre><code>##   DMU        Stafhours_Per_Day Supplies_Per_Day Reimbursed_Patient_Days
-## A Facility 1 150               0.2              14000                  
-## B Facility 2 400               0.7              14000                  
-## C Facility 3 320               1.2              42000                  
-## D Facility 4 520               2                28000                  
-## E Facility 5 350               1.2              19000                  
-## F Facility 6 320               0.7              14000                  
-##   Privately_Paid_Patient_Days
-## A 3500                       
-## B 21000                      
-## C 10500                      
-## D 42000                      
-## E 25000                      
-## F 15000</code></pre>
-<p>##Calculating Constant Returns to Scale (CRS)</p>
-<pre class="r"><code>x &lt;- matrix(c(150,400,320,520,350,320,
-            0.2,0.7,1.2,2.0,1.2,0.7),ncol=2)
-
-y &lt;- matrix(c(14000,14000,42000,28000,19000,14000,
-                3500,21000,10500,42000,25000,15000),ncol=2)
-
-colnames(y) &lt;- c(&quot;Reimbursed_Patient_Days&quot;,&quot;Privately_Paid_Patient_Days&quot;)
-
-colnames(x) &lt;- c(&quot;staffhours_per_Day&quot;,&quot;Supplies_Per_Day&quot;)
-
-DEA_CRS&lt;-dea(x, y, RTS = &quot;crs&quot;)
-DEA_CRS</code></pre>
-<pre><code>## [1] 1.0000 1.0000 1.0000 1.0000 0.9775 0.8675</code></pre>
-<pre class="r"><code>peers(DEA_CRS)</code></pre>
-<pre><code>##      peer1 peer2 peer3
-## [1,]     1    NA    NA
-## [2,]     2    NA    NA
-## [3,]     3    NA    NA
-## [4,]     4    NA    NA
-## [5,]     1     2     4
-## [6,]     1     2     4</code></pre>
-<pre class="r"><code>lambda(DEA_CRS)</code></pre>
-<pre><code>##             L1         L2 L3        L4
-## [1,] 1.0000000 0.00000000  0 0.0000000
-## [2,] 0.0000000 1.00000000  0 0.0000000
-## [3,] 0.0000000 0.00000000  1 0.0000000
-## [4,] 0.0000000 0.00000000  0 1.0000000
-## [5,] 0.2000000 0.08048142  0 0.5383307
-## [6,] 0.3428571 0.39499264  0 0.1310751</code></pre>
-<p>##CRS Observations <em>1. We get to see that Facility 1, Facility 2,
-Facility 3 and Facility 4 are efficient.</em> <em>2. Also, we get to see
-that Facility 1, Facility 2 and Facility 4 are the peer members for
-Facility 5 and Facility 6 which are the inefficient facilities.</em>
-<em>3. Facility 5 is 97.75 % efficient leaving 2.25 % as inefficient and
-Facility 6 is 86.75 % efficient leaving 13.25 % as inefficient.</em></p>
-<p>##Calculating Decreasing Returns to Scale (DRS)</p>
-<pre class="r"><code>DEA_DRS &lt;- dea(x, y, RTS = &quot;drs&quot;)
-DEA_DRS</code></pre>
-<pre><code>## [1] 1.0000 1.0000 1.0000 1.0000 0.9775 0.8675</code></pre>
-<pre class="r"><code>peers(DEA_DRS)</code></pre>
-<pre><code>##      peer1 peer2 peer3
-## [1,]     1    NA    NA
-## [2,]     2    NA    NA
-## [3,]     3    NA    NA
-## [4,]     4    NA    NA
-## [5,]     1     2     4
-## [6,]     1     2     4</code></pre>
-<pre class="r"><code>lambda(DEA_DRS)</code></pre>
-<pre><code>##             L1         L2 L3        L4
-## [1,] 1.0000000 0.00000000  0 0.0000000
-## [2,] 0.0000000 1.00000000  0 0.0000000
-## [3,] 0.0000000 0.00000000  1 0.0000000
-## [4,] 0.0000000 0.00000000  0 1.0000000
-## [5,] 0.2000000 0.08048142  0 0.5383307
-## [6,] 0.3428571 0.39499264  0 0.1310751</code></pre>
-<p>##DRS Observations - <em>1. We get to see that Facility 1, Facility
-2, Facility 3 and Facility 4 are efficient.</em></p>
-<p><em>2. Also, we get to see that Facility 1, Facility 2 and Facility 4
-are the peer members for Facility 5 and Facility 6 which are the
-inefficient facilities.</em></p>
-<p><em>3. Facility 5 is 97.75 % efficient leaving 2.25 % as inefficient
-and Facility 6 is 86.75 % efficient leaving 13.25 % as
-inefficient.</em></p>
-<p>##Calculating Increasing Returns to Scale (IRS)</p>
-<pre class="r"><code>DEA_IRS &lt;- dea(x, y, RTS = &quot;irs&quot;)
-DEA_IRS</code></pre>
-<pre><code>## [1] 1.0000 1.0000 1.0000 1.0000 1.0000 0.8963</code></pre>
-<pre class="r"><code>peers(DEA_IRS)</code></pre>
-<pre><code>##      peer1 peer2 peer3
-## [1,]     1    NA    NA
-## [2,]     2    NA    NA
-## [3,]     3    NA    NA
-## [4,]     4    NA    NA
-## [5,]     5    NA    NA
-## [6,]     1     2     5</code></pre>
-<pre class="r"><code>lambda(DEA_IRS)</code></pre>
-<pre><code>##             L1        L2 L3 L4        L5
-## [1,] 1.0000000 0.0000000  0  0 0.0000000
-## [2,] 0.0000000 1.0000000  0  0 0.0000000
-## [3,] 0.0000000 0.0000000  1  0 0.0000000
-## [4,] 0.0000000 0.0000000  0  1 0.0000000
-## [5,] 0.0000000 0.0000000  0  0 1.0000000
-## [6,] 0.4014399 0.3422606  0  0 0.2562995</code></pre>
-<p>##IRS Observations - <em>1. We get to see that Facility 1, Facility
-2, Facility 3, Facility 4 and Facility 5 are efficient.</em> <em>2.
-Also, we get to see that Facility 1, Facility 2 and Facility 5 are the
-peer members for Facility 6 which is the only inefficient facility.</em>
-<em>3. Facility 6 is 89.63 % efficient leaving 10.37 % as
-inefficient.</em></p>
-<p>##Calculating Variable Returns to Scale (VRS)</p>
-<pre class="r"><code>DEA_VRS &lt;- dea(x, y, RTS = &quot;vrs&quot;)
-DEA_VRS</code></pre>
-<pre><code>## [1] 1.0000 1.0000 1.0000 1.0000 1.0000 0.8963</code></pre>
-<pre class="r"><code>peers(DEA_VRS)</code></pre>
-<pre><code>##      peer1 peer2 peer3
-## [1,]     1    NA    NA
-## [2,]     2    NA    NA
-## [3,]     3    NA    NA
-## [4,]     4    NA    NA
-## [5,]     5    NA    NA
-## [6,]     1     2     5</code></pre>
-<pre class="r"><code>lambda(DEA_VRS)</code></pre>
-<pre><code>##             L1        L2 L3 L4        L5
-## [1,] 1.0000000 0.0000000  0  0 0.0000000
-## [2,] 0.0000000 1.0000000  0  0 0.0000000
-## [3,] 0.0000000 0.0000000  1  0 0.0000000
-## [4,] 0.0000000 0.0000000  0  1 0.0000000
-## [5,] 0.0000000 0.0000000  0  0 1.0000000
-## [6,] 0.4014399 0.3422606  0  0 0.2562995</code></pre>
-<p><em>VRS Observations -</em> <em>1. We get to see that Facility 1,
-Facility 2, Facility 3, Facility 4 and Facility 5 are efficient.</em>
-<em>2. Also, we get to see that Facility 1, Facility 2 and Facility 5
-are the peer members for Facility 6 which is the only inefficient
-facility.</em> <em>3. Facility 6 is 89.63 % efficient leaving 10.37 % as
-inefficient.</em> </p>
-<p>##Calculating Free Disposability Hull (FDH)</p>
-<pre class="r"><code>DEA_FDH &lt;- dea(x, y, RTS = &quot;fdh&quot;)
-DEA_FDH</code></pre>
-<pre><code>## [1] 1 1 1 1 1 1</code></pre>
-<pre class="r"><code>peers(DEA_FDH)</code></pre>
-<pre><code>##      peer1
-## [1,]     1
-## [2,]     2
-## [3,]     3
-## [4,]     4
-## [5,]     5
-## [6,]     6</code></pre>
-<pre class="r"><code>lambda(DEA_FDH)</code></pre>
-<pre><code>##      L1 L2 L3 L4 L5 L6
-## [1,]  1  0  0  0  0  0
-## [2,]  0  1  0  0  0  0
-## [3,]  0  0  1  0  0  0
-## [4,]  0  0  0  1  0  0
-## [5,]  0  0  0  0  1  0
-## [6,]  0  0  0  0  0  1</code></pre>
-<div id="fdh-observations--" class="section level2">
-<h2>FDH Observations -</h2>
-<p><em>All the DMUs are efficient. This is basically due to the
-principal which FDH technique follows thereby detecting even a small
-level of efficiency.</em></p>
-<p>##Calculating Free Replicability Hull (FRH)</p>
-<pre class="r"><code>#here FRH is calculated by specifying RTS = &quot;add&quot;
-DEA_FRH &lt;- dea(x, y, RTS = &quot;add&quot;)
-DEA_FRH</code></pre>
-<pre><code>## [1] 1 1 1 1 1 1</code></pre>
-<pre class="r"><code>peers(DEA_FRH)</code></pre>
-<pre><code>##      peer1
-## [1,]     1
-## [2,]     2
-## [3,]     3
-## [4,]     4
-## [5,]     5
-## [6,]     6</code></pre>
-<pre class="r"><code>lambda(DEA_FRH)</code></pre>
-<pre><code>##      L1 L2 L3 L4 L5 L6
-## [1,]  1  0  0  0  0  0
-## [2,]  0  1  0  0  0  0
-## [3,]  0  0  1  0  0  0
-## [4,]  0  0  0  1  0  0
-## [5,]  0  0  0  0  1  0
-## [6,]  0  0  0  0  0  1</code></pre>
-<p>##FRH Observations - <em>All the DMUs are efficient. It follows the
-no convexity assumption which ensures that the output is free from
-disposal and replication.</em></p>
-<p>##Summary of Results (Inefficient DMUs)</p>
-<pre class="r"><code>data.df.summarise.inefficient &lt;- matrix(c(&quot;CRS&quot;,&quot;DRS&quot;,&quot;IRS&quot;,&quot;VRS&quot;,&quot;FDH&quot;,&quot;FRH&quot;,
-2,2,1,1,0,0,
-&quot;Facility 5 &amp; 6&quot;, &quot;Facility 5 &amp; 6&quot;,&quot;Facility 6&quot;, &quot;Facility 6&quot;, &quot;-&quot;,&quot;-&quot;,
-&quot;97.75% &amp; 86.7%&quot;,&quot;97.75% &amp; 86.7%&quot;,&quot;89.63%&quot;,&quot;89.63%&quot;,&quot;-&quot;,&quot;-&quot;,
-&quot;Facility 1, 2 &amp; 4&quot;,&quot;Facility 1, 2 &amp; 4&quot;,&quot;Facility 1, 2 &amp; 5&quot;,&quot;Facility 1, 2 &amp; 5&quot;,&quot;-&quot;,&quot;-&quot;,
-&quot;0.2, 0.08, 0.54 and 0.34, 0.4, 0.13&quot;, &quot;0.2, 0.08, 0.54 and 0.34, 0.4, 0.13&quot;, &quot;0.4, 0.34 and 0.26&quot;, &quot;0.4, 0.34 and 0.26&quot;, &quot;-&quot;,&quot;-&quot;),ncol=6,byrow=F)
-
-
-colnames(data.df.summarise.inefficient) &lt;- c(&quot;RTS&quot;,&quot;Count_Inefficient_DMUs&quot;,&quot;Name_DMUs&quot;,&quot;%_Inefficiency&quot;,&quot;Peers&quot;,&quot;Lambda&quot;)
-
-as.table(data.df.summarise.inefficient)</code></pre>
-<pre><code>##   RTS Count_Inefficient_DMUs Name_DMUs      %_Inefficiency Peers            
-## A CRS 2                      Facility 5 &amp; 6 97.75% &amp; 86.7% Facility 1, 2 &amp; 4
-## B DRS 2                      Facility 5 &amp; 6 97.75% &amp; 86.7% Facility 1, 2 &amp; 4
-## C IRS 1                      Facility 6     89.63%         Facility 1, 2 &amp; 5
-## D VRS 1                      Facility 6     89.63%         Facility 1, 2 &amp; 5
-## E FDH 0                      -              -              -                
-## F FRH 0                      -              -              -                
-##   Lambda                             
-## A 0.2, 0.08, 0.54 and 0.34, 0.4, 0.13
-## B 0.2, 0.08, 0.54 and 0.34, 0.4, 0.13
-## C 0.4, 0.34 and 0.26                 
-## D 0.4, 0.34 and 0.26                 
-## E -                                  
-## F -</code></pre>
-<p>##Summary of Results tabular format (Efficient DMUs)</p>
-<pre class="r"><code>data.df.summarise.efficient &lt;- matrix(c(&quot;CRS&quot;,&quot;DRS&quot;,&quot;IRS&quot;,&quot;VRS&quot;,&quot;FDH&quot;,&quot;FRH&quot;,
-&quot;Facility 1, 2, 3 &amp; 4&quot;,&quot;Facility 1, 2, 3 &amp; 4&quot;,&quot;Facility 1, 2, 3, 4 &amp; 5&quot;, &quot;Facility 1, 2, 3, 4 &amp; 5&quot;, &quot;All DMUs&quot;, &quot;All DMUs&quot;), ncol = 2, byrow=F)
-
-colnames(data.df.summarise.efficient) &lt;- c(&quot;RTS&quot;, &quot;Efficient_DMUs&quot;)
-
-as.table(data.df.summarise.efficient)</code></pre>
-<pre><code>##   RTS Efficient_DMUs         
-## A CRS Facility 1, 2, 3 &amp; 4   
-## B DRS Facility 1, 2, 3 &amp; 4   
-## C IRS Facility 1, 2, 3, 4 &amp; 5
-## D VRS Facility 1, 2, 3, 4 &amp; 5
-## E FDH All DMUs               
-## F FRH All DMUs</code></pre>
-<p><strong><em>Conclusion</em></strong> <em>It is must to note that DEA
-is a very useful tool to any firm in deciding which is the best DMU
-i.e. which of the Decision Making Unit has to be maximized so that there
-would be an increase, decrease or any kind of variations to the output
-by feeding input into it.</em> <em>Also, a company can decide upon which
-of the RTS it wants to employ i.e. Returns to Scale based on their
-requirements, each of these scales has it’s own importance.</em> </p>
-<p>#Plotting the Graphs*** #Plot</p>
-<pre class="r"><code>dea.plot(x,y,RTS=&quot;add&quot;)</code></pre>
-<p><img src="data:image/png;base64,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" width="672" /></p>
-</div>
+<p>The Research and Development Division of the Emax Corporation has
+developed three new products. A decision now needs to be made on which
+mix of these products should be produced. Management wants primary
+consideration given to three factors: 1. Total Profit, 2. Stability in
+the workforce and 3. Achieving an increase in the company’s earnings
+next year from the $75 million achieved this year. Objective Function
+Maximize Z = P - 6C - 3D, where P = Total discounted profit over the
+life of the new products, C = Change in either direction towards the
+current level of employment, D = decrease if any in next year’s earnings
+from the current year’s level.</p>
+<pre class="r"><code>library(lpSolve)
+library(lpSolveAPI)</code></pre>
+<p>Loading the LP file from the current directory and printing the model
+Defining y1p and y1m as the amount over (if any) and the amount under
+(if any) the employment level goal. Defining y2p and y2m in the same way
+for the goal regarding earnings next year. Define x1, x2 and x3 as the
+production rates of Products 1, 2, and 3, respectively. Also expressing
+P in terms of x1, x2 and x3 and the objective function in terms of x1,
+x2, x3, y1p, y1m , y2p and y2m</p>
+<pre class="r"><code>emax_rd &lt;- read.lp(&quot;C:/Users/ASUS/Downloads/Emax1.lp&quot;)
+print(emax_rd)</code></pre>
+<pre><code>## Model name: 
+##             X1    X2    X3   Y1P   Y1M   Y2M   Y2P       
+## Maximize    20    15    25    -6    -6    -3     0       
+## R1           6     4     5    -1     1     0     0  =  50
+## R2           8     7     5     0     0     1    -1  =  75
+## Kind       Std   Std   Std   Std   Std   Std   Std       
+## Type      Real  Real  Real  Real  Real  Real  Real       
+## Upper      Inf   Inf   Inf   Inf   Inf   Inf   Inf       
+## Lower        0     0     0     0     0     0     0</code></pre>
+<pre class="r"><code>emax_table &lt;- matrix(c(&quot;Total Profit&quot;, &quot;Employment Level&quot;, &quot;Earnings Next Year&quot;,
+20,6,8,
+15,4,7,
+25,5,5,
+&quot;Maximize&quot;,&quot;=50&quot;,&quot;&gt;=75&quot;, &quot;Millions of Dollars&quot;, &quot;Hundreds of Employees&quot;, &quot;Millions of Dollars&quot;), ncol=6)
+colnames(emax_table) &lt;- c(&quot;Factor&quot;,&quot;Product 1&quot;, &quot;Product 2&quot;, &quot;Product 3&quot;, &quot;Goal&quot;, &quot;Units&quot;)
+as.table(emax_table)</code></pre>
+<pre><code>##   Factor             Product 1 Product 2 Product 3 Goal    
+## A Total Profit       20        15        25        Maximize
+## B Employment Level   6         4         5         =50     
+## C Earnings Next Year 8         7         5         &gt;=75    
+##   Units                
+## A Millions of Dollars  
+## B Hundreds of Employees
+## C Millions of Dollars</code></pre>
+<pre class="r"><code>solve(emax_rd)</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>get.objective(emax_rd)</code></pre>
+<pre><code>## [1] 225</code></pre>
+<pre class="r"><code>get.variables(emax_rd)</code></pre>
+<pre><code>## [1]  0  0 15 25  0  0  0</code></pre>
+<p>Interpretation: 1.X1, X2, X3 are the combinatorial units that
+companies must implement to maximize the objective function . X1 -
+Product 1, X2 - Product 2, and X3 of Product 3 indicate that Product 1
+and Product 2 cannot be created as intended. H. Product 1 with 20 units
+and Product 2 with 15 units cannot be created because the resulting
+solution is “0”. However, the X3 has changes. H. Product 3 is the only
+product Company can produce. H. 15 units of product 3, thereby
+maximizing profit. 2. The aim was to stabilize the employment level by
+limiting the maximum number to 50, 00 employees, but in this case the
+company exceeded the employment level by 25,000, employees (y1p) and the
+excess have to pay a penalty of Increase in number of employees. 3.The
+purpose of y2p and y2m was to capture the increase or decrease in
+earnings over the next few years from the current level of . Income
+compared with this year. Therefore, next year’s profit of remains
+constant. 4. The profit that the firm maximizes is given by the value of
+the objective function. In this case, this value is $4,444,225
+million.</p>
 
 
 
