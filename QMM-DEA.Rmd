@@ -1,0 +1,173 @@
+---
+title: "DEA assignment"
+author: "karthikeyan ramesh"
+date: "2022-10-29"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+---
+title: "DEA Assignment"
+output:
+  word_document: default
+  html_notebook: default
+  pdf_document: default
+---
+
+```{r}
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+```{r}
+library("Benchmarking")
+x <- matrix(c("Facility 1","Facility 2","Facility 3","Facility 4","Facility 5", "Facility 6",
+                150,400,320,520,350,320,
+                0.2,0.7,1.2,2.0,1.2,0.7,
+                14000,14000,42000,28000,19000,14000,
+                3500,21000,10500,42000,25000,15000), ncol=5, byrow=F)
+
+colnames(x) <- c("DMU", "Stafhours_Per_Day","Supplies_Per_Day","Reimbursed_Patient_Days","Privately_Paid_Patient_Days")
+
+table.df <- as.table(x)
+table.df
+```
+
+##Calculating Constant Returns to Scale (CRS)
+```{r}
+x <- matrix(c(150,400,320,520,350,320,
+            0.2,0.7,1.2,2.0,1.2,0.7),ncol=2)
+
+y <- matrix(c(14000,14000,42000,28000,19000,14000,
+                3500,21000,10500,42000,25000,15000),ncol=2)
+
+colnames(y) <- c("Reimbursed_Patient_Days","Privately_Paid_Patient_Days")
+
+colnames(x) <- c("staffhours_per_Day","Supplies_Per_Day")
+
+DEA_CRS<-dea(x, y, RTS = "crs")
+DEA_CRS
+
+peers(DEA_CRS)
+lambda(DEA_CRS)
+```
+##CRS Observations 
+*1. We get to see that Facility 1, Facility 2, Facility 3  and Facility 4 are efficient.*
+*2. Also, we get to see that Facility 1, Facility 2 and Facility 4 are the peer members for Facility 5 and Facility 6 which are the inefficient facilities.*
+*3. Facility 5 is 97.75 % efficient leaving 2.25 % as inefficient and Facility 6 is 86.75 % efficient leaving 13.25 % as inefficient.*
+
+##Calculating Decreasing Returns to Scale (DRS)
+```{r}
+DEA_DRS <- dea(x, y, RTS = "drs")
+DEA_DRS
+
+peers(DEA_DRS)
+lambda(DEA_DRS)
+```
+##DRS Observations -
+\newline
+*1. We get to see that Facility 1, Facility 2, Facility 3  and Facility 4 are efficient.*
+
+*2. Also, we get to see that Facility 1, Facility 2 and Facility 4 are the peer members for Facility 5 and Facility 6 which are the inefficient facilities.*
+
+*3. Facility 5 is 97.75 % efficient leaving 2.25 % as inefficient and Facility 6 is 86.75 % efficient leaving 13.25 % as inefficient.*
+
+
+##Calculating Increasing Returns to Scale (IRS)
+```{r}
+DEA_IRS <- dea(x, y, RTS = "irs")
+DEA_IRS
+
+peers(DEA_IRS)
+lambda(DEA_IRS)
+```
+##IRS Observations -
+*1. We get to see that Facility 1, Facility 2, Facility 3, Facility 4 and Facility 5 are efficient.*
+*2. Also, we get to see that Facility 1, Facility 2 and Facility 5 are the peer members for Facility 6 which is the only inefficient facility.*
+*3. Facility 6 is 89.63 % efficient leaving 10.37 % as inefficient.*
+
+##Calculating Variable Returns to Scale (VRS)
+```{r}
+DEA_VRS <- dea(x, y, RTS = "vrs")
+DEA_VRS
+
+peers(DEA_VRS)
+lambda(DEA_VRS)
+```
+*VRS Observations -* 
+\newline
+*1. We get to see that Facility 1, Facility 2, Facility 3, Facility 4 and Facility 5 are efficient.*
+\newline
+*2. Also, we get to see that Facility 1, Facility 2 and Facility 5 are the peer members for Facility 6 which is the only inefficient facility.*
+\newline
+*3. Facility 6 is 89.63 % efficient leaving 10.37 % as inefficient.*
+\newline
+
+##Calculating Free Disposability Hull (FDH)
+```{r}
+DEA_FDH <- dea(x, y, RTS = "fdh")
+DEA_FDH
+
+peers(DEA_FDH)
+lambda(DEA_FDH)
+```
+## FDH Observations -
+*All the DMUs are efficient. This is basically due to the principal which FDH technique follows thereby detecting even a small level of efficiency.*
+
+##Calculating Free Replicability Hull (FRH)
+```{r}
+#here FRH is calculated by specifying RTS = "add"
+DEA_FRH <- dea(x, y, RTS = "add")
+DEA_FRH
+
+peers(DEA_FRH)
+lambda(DEA_FRH)
+```
+##FRH Observations -
+*All the DMUs are efficient. It follows the no convexity assumption which ensures that the output is free from disposal and replication.*
+
+##Summary of Results (Inefficient DMUs)
+```{r}
+data.df.summarise.inefficient <- matrix(c("CRS","DRS","IRS","VRS","FDH","FRH",
+2,2,1,1,0,0,
+"Facility 5 & 6", "Facility 5 & 6","Facility 6", "Facility 6", "-","-",
+"97.75% & 86.7%","97.75% & 86.7%","89.63%","89.63%","-","-",
+"Facility 1, 2 & 4","Facility 1, 2 & 4","Facility 1, 2 & 5","Facility 1, 2 & 5","-","-",
+"0.2, 0.08, 0.54 and 0.34, 0.4, 0.13", "0.2, 0.08, 0.54 and 0.34, 0.4, 0.13", "0.4, 0.34 and 0.26", "0.4, 0.34 and 0.26", "-","-"),ncol=6,byrow=F)
+
+
+colnames(data.df.summarise.inefficient) <- c("RTS","Count_Inefficient_DMUs","Name_DMUs","%_Inefficiency","Peers","Lambda")
+
+as.table(data.df.summarise.inefficient)
+```
+##Summary of Results tabular format (Efficient DMUs)
+```{r}
+data.df.summarise.efficient <- matrix(c("CRS","DRS","IRS","VRS","FDH","FRH",
+"Facility 1, 2, 3 & 4","Facility 1, 2, 3 & 4","Facility 1, 2, 3, 4 & 5", "Facility 1, 2, 3, 4 & 5", "All DMUs", "All DMUs"), ncol = 2, byrow=F)
+
+colnames(data.df.summarise.efficient) <- c("RTS", "Efficient_DMUs")
+
+as.table(data.df.summarise.efficient)
+```
+
+***Conclusion***
+\newline
+*It is must to note that DEA is a very useful tool to any firm in deciding which is the best DMU i.e. which of the Decision Making Unit has to be maximized so that there would be an increase, decrease or any kind of variations to the output by feeding input into it.* 
+\newline
+*Also, a company can decide upon which of the RTS it wants to employ i.e. Returns to Scale based on their requirements, each of these scales has it's own importance.*
+\newline
+
+#Plotting the Graphs***
+\newline
+#Plot
+
+```{r}
+dea.plot(x,y,RTS="add")
+```
