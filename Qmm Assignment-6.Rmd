@@ -1,0 +1,47 @@
+---
+title: "QMM-Assignment-6"
+author: "Karthikeyan ramesh"
+date: "2022-11-20"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r comment=NA }
+library(lpSolve)
+library(lpSolveAPI)
+y <- read.lp("ass10.lp")
+y
+```
+
+Solving the problem to get objective function. 
+```{r}
+solve(y)
+get.objective(y)
+```
+#Our Objective function is: 25675.
+#Let's examine the factors to determine what this means..
+
+```{r}
+get.variables(y)
+```
+
+
+### What it illustrates is:
+#X1 = shift 1 with Sunday and Monday off = 2
+#X2 = shift 2 with Monday and Tuesday off = 4
+#X3 = shift 3 with Tuesday and Wednesday off = 5
+#X4 = shift 4 with Wednesday and Thursday off = 0
+#X5 = shift 5 with Thursday and Friday off = 8
+#X6 = shift 6 with Friday and Saturday off = 1
+#X7 = shift 7 with Saturday and Sunday off = 13
+
+### Our goal-oriented purpose = 2x775 + 4x800 + 5x800 + 8x800 + 1X775 + 13x750 = 25675.
+### The bare least that we can afford to pay for salary is 25675.
